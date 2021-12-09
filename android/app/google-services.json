@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "308791852959",
+    "project_id": "global-dd-system",
+    "storage_bucket": "global-dd-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308791852959:android:88158eb1576e7afd5b47aa",
+        "android_client_info": {
+          "package_name": "com.anousama.gdds"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "308791852959-6fmoe4etalp52tvp0aq1v38gmuqs9olc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGsjseMpeYmWLFETdrQkhikK3E8MHyIgA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "308791852959-6fmoe4etalp52tvp0aq1v38gmuqs9olc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
