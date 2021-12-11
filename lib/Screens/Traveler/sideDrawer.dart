@@ -38,6 +38,7 @@ class TravelerSideDrawer extends StatelessWidget {
                 builder: (context) => SettingsPage(),
               )),
             ),
+             Divider(height: 8, thickness: 5),
             Row(
               children: [
                 Padding(
@@ -45,7 +46,7 @@ class TravelerSideDrawer extends StatelessWidget {
                   child: Icon(Icons.timeline_outlined, color: Colors.purple[900], size: 30,),
                 ),
                 GestureDetector(child: Text("Timeline",
-                style: TextStyle(color: Colors.blue[900], fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold),),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold),),
                 onTap: () => Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => TravelerMain())),)
               ],
@@ -53,12 +54,13 @@ class TravelerSideDrawer extends StatelessWidget {
             Divider(height: 8, thickness: 5),
             Row(
               children: [
+                Divider(height: 8, thickness: 5),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Icon(Icons.shopping_cart_outlined, color: Colors.purple[900], size: 30,),
                 ),
                 GestureDetector(child: Text("My Orders",
-                style: TextStyle(color: Colors.blue[900], fontSize: 25, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold,)),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold,)),
                 onTap: () => Navigator.push(context,
                       MaterialPageRoute(builder: (context) => TravelerGetOrder())),)
               ],
@@ -71,7 +73,7 @@ class TravelerSideDrawer extends StatelessWidget {
                   child: Icon(Icons.login_outlined, color: Colors.purple[900], size: 30,),
                 ),
                 GestureDetector(child: Text("Logout",
-                style: TextStyle(color: Colors.blue[900], fontSize: 25, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)),
                 onTap: () async {
                       // _googleSignIn.disconnect();
                       if (traveler.displayName != null) {
@@ -87,6 +89,7 @@ class TravelerSideDrawer extends StatelessWidget {
                     })
               ],
             ),
+            Divider(height: 8, thickness: 5),
             // Row(
             //   children: [
             //     Icon(Icons.login_outlined),

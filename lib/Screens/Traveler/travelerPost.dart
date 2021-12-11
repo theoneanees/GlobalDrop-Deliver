@@ -2,16 +2,15 @@ import 'dart:ffi';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dash_chat/dash_chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:gdds/Screens/Chat/constants/color_constants.dart';
 import 'package:gdds/Screens/Chat/models/user_chat.dart';
 import 'package:gdds/Screens/Chat/pages/pages.dart';
-import 'package:gdds/Screens/Chat/utils/utilities.dart';
+import 'package:gdds/Screens/Traveler/getTravelerRatingsList.dart';
+import 'package:gdds/Screens/Traveler/travelerRatings.dart';
 import 'package:gdds/Screens/Traveler/traveler_window.dart';
-import 'package:gdds/models/travelerdata.dart';
 import 'package:flutter/material.dart';
 import 'package:gdds/Screens/Buyer/progress.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 final currentTraveler = FirebaseAuth.instance.currentUser;
 DocumentSnapshot? curdoc;
@@ -25,17 +24,18 @@ class TravelerPost extends StatefulWidget {
   final String? currentLocation;
   final String? destination;
   final String? arrivalDate;
+  final num? rating;
 
-  TravelerPost({
-    this.postId,
-    this.ownerId,
-    this.username,
-    this.userPhoto,
-    this.availWeight,
-    this.currentLocation,
-    this.destination,
-    this.arrivalDate,
-  });
+  TravelerPost(
+      {this.postId,
+      this.ownerId,
+      this.username,
+      this.userPhoto,
+      this.availWeight,
+      this.currentLocation,
+      this.destination,
+      this.arrivalDate,
+      this.rating});
 
   factory TravelerPost.fromDocument(DocumentSnapshot doc) {
     return TravelerPost(
@@ -59,6 +59,8 @@ class TravelerPost extends StatefulWidget {
       arrivalDate: doc.data().toString().contains('arrivalDate')
           ? doc.get('arrivalDate')
           : '',
+      rating:
+          doc.data().toString().contains('rating') ? doc.get('rating') : 0.0,
     );
   }
   @override
@@ -71,6 +73,7 @@ class TravelerPost extends StatefulWidget {
         currentLocation: this.currentLocation!,
         destination: this.destination!,
         arrivalDate: this.arrivalDate!,
+        rating: this.rating,
       );
 }
 
@@ -84,6 +87,7 @@ class _TravelerPostState extends State<TravelerPost> {
   final String currentLocation;
   final String destination;
   final String arrivalDate;
+  final num? rating;
 
   _TravelerPostState(
       {required this.postId,
@@ -93,7 +97,8 @@ class _TravelerPostState extends State<TravelerPost> {
       required this.availWeight,
       required this.currentLocation,
       required this.destination,
-      required this.arrivalDate});
+      required this.arrivalDate,
+      this.rating});
 
   buildPostHeader() {
     return FutureBuilder(
@@ -102,8 +107,8 @@ class _TravelerPostState extends State<TravelerPost> {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        TravelerData tuser =
-            TravelerData.fromDocument(snapshot.data! as DocumentSnapshot);
+        // TravelerData tuser =
+        //     TravelerData.fromDocument(snapshot.data! as DocumentSnapshot);
         bool isPostOwner = currentUserId == ownerId;
         return ListTile(
           leading: CircleAvatar(
@@ -124,14 +129,31 @@ class _TravelerPostState extends State<TravelerPost> {
                   fontStyle: FontStyle.italic),
             ),
           ),
-          // subtitle: Text(
-          //   currentLocation,
-          //   style: TextStyle(fontSize: 16.0, color: Colors.grey[900]),
-          // ),
+          subtitle: GestureDetector(
+            child: SmoothStarRating(
+                allowHalfRating: true,
+                starCount: 5,
+                rating: rating!.toDouble(),
+                size: 20.0,
+                isReadOnly: true,
+                color: Colors.yellow[900],
+                borderColor: Colors.yellow[900],
+                spacing: 0.0),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => GetTravelerRatingsList(
+                  travelerName: ownerId,
+                ),
+              ),
+            ),
+          ),
           trailing: isPostOwner
               ? IconButton(
-                  onPressed: () =>
-                      print('Delete Item'), //handleDeletePost(context),
+                  onPressed: () => FirebaseFirestore.instance
+                      .runTransaction((transaction) async =>
+                          transaction.delete(travelerPostsRef.doc(postId)))
+                      .then((value) => print(
+                          "document deletted")), //handleDeletePost(context),
                   icon: Icon(Icons.more_vert),
                 )
               : Text(''),
@@ -209,8 +231,6 @@ class _TravelerPostState extends State<TravelerPost> {
                   fontSize: 17,
                   fontStyle: FontStyle.italic),
             ),
-            // Icon(Icons.arrow_forward),
-            // Text("$arrivalDate".split(' ')[0], style: TextStyle(color: Colors.black, fontSize: 17),),
             Text(
               arrivalDate,
               style: TextStyle(color: Colors.black, fontSize: 17),
@@ -227,8 +247,6 @@ class _TravelerPostState extends State<TravelerPost> {
                   fontSize: 17,
                   fontStyle: FontStyle.italic),
             ),
-            // Icon(Icons.arrow_forward),
-            // Text('------'),
             Text(
               availWeight + " Kg",
               style: TextStyle(
@@ -238,29 +256,37 @@ class _TravelerPostState extends State<TravelerPost> {
             ),
           ],
         ),
-        Padding(
+        chatWithTravelerBtn()
+      ],
+    );
+  }
+
+  chatWithTravelerBtn(){
+    bool isPostOwner = currentUserId == ownerId;
+    if (!isPostOwner) {
+      return Padding(
           padding: const EdgeInsets.only(top: 10.0),
           child: ElevatedButton(
-            onPressed: () async{
+            onPressed: () async {
               DocumentSnapshot doc = await FirebaseFirestore.instance
-              .collection('chatUsers').doc(ownerId).get();
+                  .collection('chatUsers')
+                  .doc(ownerId)
+                  .get();
 
               UserChat userChat = UserChat.fromDocument(doc);
-     
-              WidgetsBinding.instance!.addPostFrameCallback((_){
 
-                  Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(
-                    peerId: userChat.id,
-                    peerAvatar: userChat.photoUrl,
-                    peerNickname: userChat.nickname,
+              WidgetsBinding.instance!.addPostFrameCallback((_) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      peerId: userChat.id,
+                      peerAvatar: userChat.photoUrl,
+                      peerNickname: userChat.nickname,
+                    ),
                   ),
-                ),
-              );
-});
-              
+                );
+              });
             },
             child: Text("Chat with Traveler"),
             style: ElevatedButton.styleFrom(
@@ -269,9 +295,10 @@ class _TravelerPostState extends State<TravelerPost> {
                 elevation: 17,
                 fixedSize: Size.fromHeight(27)),
           ),
-        ),
-      ],
-    );
+        );
+    }
+    else
+      return Text("data");
   }
 
   @override
@@ -290,12 +317,7 @@ class _TravelerPostState extends State<TravelerPost> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          // mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // Text('This is anno'),
-            // Text('This is anno'),
-            // Text('This is anno'),
-            // Text('This is anno'),
             buildPostHeader(),
             Divider(
               height: 33,
@@ -306,15 +328,7 @@ class _TravelerPostState extends State<TravelerPost> {
               height: 33,
               thickness: 5,
             ),
-      //       FutureBuilder<Widget>(
-      //  future: buildPostFooter(),
-      //  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot){
-      //    if(snapshot.hasData)
-      //      return buildPostFooter();
-      //    return Container(child: CircularProgressIndicator());
-      //  }
-      // ),
-      buildPostFooter()
+            buildPostFooter()
           ],
         ),
       ),

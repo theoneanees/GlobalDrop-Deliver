@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gdds/Screens/Chat/constants/color_constants.dart';
 import 'package:gdds/Screens/Chat/providers/auth_provider.dart';
+import 'package:gdds/Screens/Traveler/traveler_window.dart';
 import 'package:provider/provider.dart';
 
 import 'pages.dart';
@@ -40,33 +41,39 @@ class SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: ElevatedButton(
-                  onPressed: () async {
-                    bool isSuccess = await authProvider.handleSignIn();
-                    if (isSuccess) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomePage(),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text("Continue to chat")),
-            ),
-            //   Container(
-            //     width: 20,
-            //     height: 20,
-            //     child:
-            //         CircularProgressIndicator(color: ColorConstants.themeColor),
-            //   ),
-          ],
-        ),
+      backgroundColor: Colors.grey[600],
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 18,
+                  shadowColor: Colors.black,
+                  primary: Colors.orange[700]
+                ),
+                onPressed: () async {
+                  bool isSuccess = await authProvider.handleSignIn();
+                  if (isSuccess) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TravelerMain()
+                      ),
+                    );
+                  }
+                },
+                child: Text("Continue to GDDS".toUpperCase())),
+          ),
+          //   Container(
+          //     width: 20,
+          //     height: 20,
+          //     child:
+          //         CircularProgressIndicator(color: ColorConstants.themeColor),
+          //   ),
+        ],
       ),
     );
   }

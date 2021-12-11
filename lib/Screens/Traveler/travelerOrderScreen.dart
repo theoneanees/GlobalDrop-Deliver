@@ -11,7 +11,6 @@ import 'package:gdds/Screens/Buyer/progress.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 
-
 // final currentTraveler = FirebaseAuth.instance.currentUser;
 
 class TravelerOrderScreen extends StatefulWidget {
@@ -134,27 +133,13 @@ class _TravelerOrderScreenState extends State<TravelerOrderScreen> {
     required this.currentStatus,
   });
 
-  String tempCurrStatus = "";
-  static String tempTravelerId = "";
-  static String tempOfferId = "";
-  // static String? tempBuyerId;
-
-  
+  static String tempCurrStatus = "";
 
   @override
   void initState() {
     super.initState();
     tempCurrStatus = currentStatus;
-    tempTravelerId = travelerId;
-    tempOfferId = offerId;
-    print("tempTravelerId");
-    print(tempTravelerId);
-    print("offerId");
-    print(tempOfferId);
   }
-
-
-  
 
   buildPostHeader() {
     return FutureBuilder(
@@ -421,117 +406,160 @@ class _TravelerOrderScreenState extends State<TravelerOrderScreen> {
     );
   }
 
-  itemRecievedBtn(){
+  itemRecievedBtn() {
     if (tempCurrStatus.contains('HANDOVERED') && (currentTraveler == null)) {
       return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                primary: Colors.orange[700],
-                elevation: 17,
-                shadowColor: Colors.black),
-            onPressed: () {
-              FirebaseFirestore.instance
-                  .collection("orders")
-                  .doc(offerId)
-                  .update({
-                "currentStatus": "Buyer has RECEIVED the item\nsuccessfully"
-              }).then((_) {
-                Fluttertoast.showToast(msg: "Item RECEIVED by buyer successfully");
-                setState(() {
-                  tempCurrStatus = "You have RECEIVED\nthe item";
-                });
-              });
-            },
-            child: Text("I have Received the Item"),
-          );
+        style: ElevatedButton.styleFrom(
+            primary: Colors.orange[700],
+            elevation: 17,
+            shadowColor: Colors.black),
+        onPressed: () {
+          FirebaseFirestore.instance.collection("orders").doc(offerId).update({
+            "currentStatus": "Buyer has RECEIVED the item\nsuccessfully"
+          }).then((_) {
+            Fluttertoast.showToast(msg: "Item RECEIVED by buyer successfully");
+            // setState(() {
+            //   tempCurrStatus = "You have RECEIVED\nthe item";
+            // });
+          });
+        },
+        child: Text("I have Received the Item"),
+      );
     }
-      return Text("");
+    return Text("");
   }
 
-  rateTravelerBtn(){
+  rateTravelerBtn() {
     if (tempCurrStatus.contains('RECEIVED') && (currentTraveler == null)) {
       return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                primary: Colors.orange[700],
-                elevation: 17,
-                shadowColor: Colors.black),
-            onPressed: () {
-              showDialog(
-      context: context,
-      barrierDismissible: true, // set to false if you want to force a rating
-      builder: (context) => _dialog,
-    );
-            },
-            child: Text("Rate Traveler"),
+        style: ElevatedButton.styleFrom(
+            primary: Colors.orange[700],
+            elevation: 17,
+            shadowColor: Colors.black),
+        onPressed: () async {
+          DocumentSnapshot doc = await travelersRef
+              .doc(travelerId)
+              .collection("reviews")
+              .doc(offerId)
+              .get();
+          if (doc.exists) {
+            Fluttertoast.showToast(msg: "Review Already Submitted");
+            return;
+          }
+          showDialog(
+            context: context,
+            barrierDismissible:
+                true, // set to false if you want to force a rating
+            builder: (context) => _ratingDialogue(),
           );
+        },
+        child: Text("Rate Traveler"),
+      );
     }
     return Text("");
-
   }
 
-  final _dialog = RatingDialog(
-      initialRating: 1.0,
-      // your app's name?
-      title: Text(
-        'GDDS',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
+  _ratingDialogue() => RatingDialog(
+        initialRating: 1.0,
+        // your app's name?
+        title: Text(
+          'GDDS',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      // encourage your user to leave a high rating?
-      message: Text(
-        'Rate the traveler',
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 15),
-      ),
-      // your app's logo?
-      image: CachedNetworkImage(
-        height: 120,
-        width: 220,
-        imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/000/620/372/small/aviation_logo-22.jpg"),
-      submitButtonText: 'Submit',
-      commentHint: 'Add Your Review here',
-      onCancelled: () => print('cancelled'),
-      onSubmitted: (response) async{
-        print('rating: ${response.rating}, comment: ${response.comment}');
-        await travelersRef.
-        doc(tempTravelerId).collection("reviews").doc(tempOfferId).set({
-          'reviewerId': currBuyer!.id,
-          'rating': response.rating,
-          'comment': response.comment
-        });
-        Fluttertoast.showToast(msg: "Review Submitted successfully");
-      },
-    );
+        // encourage your user to leave a high rating?
+        message: Text(
+          'Rate the traveler',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 15),
+        ),
+        // your app's logo?
+        image: CachedNetworkImage(
+            height: 120,
+            width: 220,
+            imageUrl:
+                "https://static.vecteezy.com/system/resources/thumbnails/000/620/372/small/aviation_logo-22.jpg"),
+        submitButtonText: 'Submit',
+        commentHint: 'Add Your Review here',
+        onCancelled: () => print('cancelled'),
+        onSubmitted: (response) async {
+            print('rating: ${response.rating}, comment: ${response.comment}');
+            await travelersRef
+                .doc(travelerId)
+                .collection("reviews")
+                .doc(offerId)
+                .set({
+              'reviewerId': currBuyer!.username,
+              'rating': response.rating,
+              'comment': response.comment,
+            });
 
-  itemHandOverBtn(){
+            double previousRating = 0.0;
+
+            DocumentSnapshot doc = await travelersRef.doc(travelerId).get();
+
+            previousRating = TravelerData.fromDocument(doc).rating.toDouble();
+
+
+            double newRating = (previousRating + response.rating) / 2;
+
+            await travelersRef.doc(travelerId).update({
+              'rating': newRating,
+            });
+
+
+
+            FirebaseFirestore.instance
+                .collection("orders")
+                .doc(offerId)
+                .update({
+              "currentStatus": "Your Order has\nCOMPLETED successfully"
+            }).then((_) {
+              Fluttertoast.showToast(msg: "Review SUBMITTED successfully");
+              // setState(() {
+              //   tempCurrStatus = "You order has be COMPLETED";
+              // });
+            });
+
+          //for Buyer
+        },
+      );
+
+  itemHandOverBtn() {
     if (tempCurrStatus.contains('PICKED') && (currBuyer == null)) {
       return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                primary: Colors.orange[700],
-                elevation: 17,
-                shadowColor: Colors.black),
-            onPressed: () {
-              FirebaseFirestore.instance
-                  .collection("orders")
-                  .doc(offerId)
-                  .update({
-                "currentStatus": "Traveler has HANDOVERED\nthe item"
-              }).then((_) {
-                Fluttertoast.showToast(msg: "Item HANDOVERED to buyer\nsuccessfully");
-                setState(() {
-                  tempCurrStatus = "You have HANDOVERED the item";
-                });
-              });
-            },
-            child: Text("I Handed Over the Item to Buyer"),
-          );
+        style: ElevatedButton.styleFrom(
+            primary: Colors.orange[700],
+            elevation: 17,
+            shadowColor: Colors.black),
+        onPressed: () {
+          FirebaseFirestore.instance.collection("orders").doc(offerId).update(
+              {"currentStatus": "Traveler has HANDOVERED\nthe item"}).then((_) {
+            Fluttertoast.showToast(
+                msg: "Item HANDOVERED to buyer\nsuccessfully");
+            // setState(() {
+            //   tempCurrStatus = "You have HANDOVERED the item";
+            // });
+          });
+        },
+        child: Text("I Handed Over the Item to Buyer"),
+      );
     }
     return Text("");
   }
+
   acceptDeclineBtn() {
-    if ((currBuyer == null) || (tempCurrStatus.contains('PICKED')) || (tempCurrStatus.contains('RECEIVED')) || (tempCurrStatus.contains('HANDOVERED')) || (currentTraveler != null)) {
+    if ((currBuyer == null) ||
+        (tempCurrStatus.contains('PICKED')) ||
+        (tempCurrStatus.contains('RECEIVED')) ||
+        (tempCurrStatus.contains('HANDOVERED')) ||
+        (tempCurrStatus.contains('RECEIVED')) ||
+        (tempCurrStatus.contains('ACCEPTED')) ||
+        (tempCurrStatus.contains('COMPLETED')) ||
+        (currentTraveler != null)) {
       return Text("");
     }
     return Column(
@@ -548,9 +576,9 @@ class _TravelerOrderScreenState extends State<TravelerOrderScreen> {
             FirebaseFirestore.instance.collection("orders").doc(offerId).update(
                 {"currentStatus": "Buyer has ACCEPTED the order"}).then((_) {
               Fluttertoast.showToast(msg: "Request Accepted successfully");
-              setState(() {
-                tempCurrStatus = "You have ACCEPTED the request";
-              });
+              // setState(() {
+              //   tempCurrStatus = "You have ACCEPTED the request";
+              // });
             });
           },
           child: Text("Accept"),
@@ -561,15 +589,12 @@ class _TravelerOrderScreenState extends State<TravelerOrderScreen> {
             primary: Colors.red,
           ),
           onPressed: () {
-            FirebaseFirestore.instance
-                .collection("orders")
-                .doc(offerId)
-                .update({"currentStatus": "Buyer has DECLINED the order"}).then(
-                    (_) {
+            FirebaseFirestore.instance.collection("orders").doc(offerId).update(
+                {"currentStatus": "Buyer has DECLINED the order"}).then((_) {
               Fluttertoast.showToast(msg: "Request declined successfully");
-              setState(() {
-                tempCurrStatus = "You have DECLINED the request";
-              });
+              // setState(() {
+              //   tempCurrStatus = "You have DECLINED the request";
+              // });
             });
           },
           child: Text("Decline"),
@@ -600,9 +625,9 @@ class _TravelerOrderScreenState extends State<TravelerOrderScreen> {
                 "currentStatus": "Traveler has PICKED the item"
               }).then((_) {
                 Fluttertoast.showToast(msg: "Item Picked successfully");
-                setState(() {
-                  tempCurrStatus = "You have PICKED the item";
-                });
+                // setState(() {
+                //   tempCurrStatus = "You have PICKED the item";
+                // });
               });
             },
             child: Text("I have picked the Item"),

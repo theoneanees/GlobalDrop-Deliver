@@ -1,4 +1,4 @@
-
+// @dart=2.9
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
   final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
   // This widget is the root of your application.
 
-  MyApp({required this.prefs, required this.prefs2});
+  MyApp({this.prefs, this.prefs2});
 
   Widget getloginverify() {
     if (obtainedEmail1 != null) {

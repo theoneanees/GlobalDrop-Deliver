@@ -27,7 +27,8 @@ class _TravelerTimelineState extends State<TravelerTimeline> {
   void initState() {
     super.initState();
     print("this is traveler Timeline");
-    getTravelerTimeline();
+    // getTravelerTimeline();
+    getDataFromAlgorithm();
     // print(manualPhotoUrl);
   }
 
@@ -37,6 +38,89 @@ class _TravelerTimelineState extends State<TravelerTimeline> {
     } else {
       return ListView(children: travelerPosts);
     }
+  }
+
+  getDataFromAlgorithm() async {
+    double totalValueCounter = 1;
+
+    // QuerySnapshot snapshot = await travelerPostsRef
+    // .where('destination', isEqualTo: widget.desitination!.toUpperCase())
+    // .where('arrivalDate', isEqualTo: widget.tArrivalDate)
+    // .where('availWeight', isEqualTo: widget.availableWeight)
+    // .orderBy('rating', descending: true)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.7;
+    //   return value;
+    // });
+
+    // QuerySnapshot snapshot1 = await travelerPostsRef
+    // .where('destination', isEqualTo: widget.desitination!.toUpperCase())
+    // .where('arrivalDate', isEqualTo: widget.tArrivalDate)
+    // .orderBy('rating', descending: true)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.6;
+    //   return value;
+    // });
+
+    // QuerySnapshot snapshot2 = await travelerPostsRef
+    // .where('destination', isEqualTo: widget.desitination!.toUpperCase())
+    // .where('availWeight', isEqualTo: widget.availableWeight)
+    // .orderBy('rating', descending: true)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.6;
+    //   return value;
+    // });
+
+    // QuerySnapshot snapshot3 = await travelerPostsRef
+    // .where('arrivalDate', isEqualTo: widget.tArrivalDate)
+    // .where('availWeight', isEqualTo: widget.availableWeight)
+    // .orderBy('rating', descending: true)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.2;
+    //   return value;
+    // });
+
+    // QuerySnapshot snapshot4 = await travelerPostsRef
+    // .orderBy('rating', descending: false)
+    // .orderBy('availWeight', descending: false)
+    // .startAt(['20'])
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.1;
+    //   return value;
+    // });
+
+    
+
+    // QuerySnapshot snapshot5 = await travelerPostsRef
+    // .where('arrivalDate', isEqualTo: widget.tArrivalDate)
+    // .orderBy('rating', descending: true)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.1;
+    //   return value;
+    // });
+
+    // QuerySnapshot snapshot6 = await travelerPostsRef
+    // .where('destination', isEqualTo: widget.desitination!.toUpperCase())
+    // .orderBy('rating', descending: false)
+    // .get().then((value) {
+    //   totalValueCounter = totalValueCounter * 0.5;
+    //   return value;
+    // });
+
+
+    QuerySnapshot snapshot7 = await travelerPostsRef
+    .orderBy('rating', descending: true)
+    .get();
+
+    List<TravelerPost> travelerPosts =
+          snapshot7.docs.map((doc) => TravelerPost.fromDocument(doc)).toList();
+
+      setState(() {
+        this.travelerPosts = travelerPosts;
+      });
+
+    // snapshot.docs.contains('rating');
+
   }
 
   getTravelerTimeline() async {

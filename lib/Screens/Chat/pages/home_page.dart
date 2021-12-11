@@ -47,6 +47,7 @@ class HomePageState extends State<HomePage> {
   String _textSearch = "";
   bool isLoading = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  
 
   late AuthProvider authProvider;
   late String currentUserId;
@@ -108,8 +109,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void configLocalNotification() {
-    AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+    var initializationSettingsAndroid = new AndroidInitializationSettings('@mipmap/ic_launcher');
     IOSInitializationSettings initializationSettingsIOS =
         IOSInitializationSettings();
     InitializationSettings initializationSettings = InitializationSettings(
@@ -287,6 +287,11 @@ class HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (context) => StartPage()),
       (Route<dynamic> route) => false,
     );
+  }
+
+  getCurrDoc() async{
+     DocumentSnapshot doc = await travelersRef.doc(currentTraveler!.id).get();
+     return doc;
   }
 
   @override

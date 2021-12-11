@@ -22,6 +22,7 @@ class _TravelerUploadState extends State<TravelerUpload> {
     availWeightController.clear();
     print(currentTraveler!.username);
     print(currentTraveler!.email);
+    print(currentTraveler!.rating);
   }
 
   String date = DateTime.now().toString().split(' ')[0];
@@ -65,6 +66,7 @@ class _TravelerUploadState extends State<TravelerUpload> {
       "destination": destination!.toUpperCase(),
       "arrivalDate": arrivalDate,
       "timestamp": timestampR,
+      "rating": currentTraveler!.rating
     });
   }
 
@@ -180,10 +182,9 @@ class _TravelerUploadState extends State<TravelerUpload> {
                     Text(
                       "Please select your location",
                       style: TextStyle(
-                        fontSize: 15,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold
-                      ),
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold),
                     ),
                     Container(height: 12),
                     CSCPicker(
@@ -253,9 +254,10 @@ class _TravelerUploadState extends State<TravelerUpload> {
               ),
               child: ElevatedButton.icon(
                 onPressed: () {
-                  address = cityValue!  + ",\n" + stateValue! + ",\n" + countryValue!;
-                      print(address);
-                      print(date);
+                  address =
+                      cityValue! + ",\n" + stateValue! + ",\n" + countryValue!;
+                  print(address);
+                  print(date);
                   handleSubmit();
                   // printAdress();
                 },

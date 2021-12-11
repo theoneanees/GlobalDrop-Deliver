@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gdds/Screens/Buyer/bottom_nav_bar.dart';
+import 'package:gdds/Screens/Chat/pages/pages.dart';
 import 'package:gdds/Screens/Chat/providers/auth_provider.dart';
 import 'package:gdds/Screens/Traveler/traveler_window.dart';
 import 'package:gdds/local.dart';
@@ -276,7 +277,7 @@ class _SignInState extends State<SignInTravler> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TravelerMain(),
+                          builder: (context) => SplashPage(),
                         ),
                       );
                     }

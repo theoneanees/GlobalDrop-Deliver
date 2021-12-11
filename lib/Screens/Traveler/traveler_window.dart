@@ -77,7 +77,8 @@ class _TravelerMainState extends State<TravelerMain> {
           'username': traveler.displayName,
           'email': traveler.email,
           'photoUrl': traveler.photoURL,
-          'timeStamp': timestamp
+          'timeStamp': timestamp,
+          'rating': 0.0
         },
       );
       doc = await travelersRef.doc(traveler.uid).get();
@@ -122,7 +123,7 @@ class _TravelerMainState extends State<TravelerMain> {
     TravelerTimeline(),
     TravelerUpload(),
     // Container(color: Colors.red,),
-    SplashPage(),
+    HomePage(),
     SettingsPage()
   ];
 

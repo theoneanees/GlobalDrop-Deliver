@@ -5,12 +5,14 @@ class TravelerData {
   final String? email;
   final String? username;
   final String? photoUrl;
+  final num rating;
 
   TravelerData({
     required this.id,
     required this.email,
     required this.username,
     required this.photoUrl,
+    required this.rating,
   });
 
   factory TravelerData.fromDocument(DocumentSnapshot doc) {
@@ -24,6 +26,7 @@ class TravelerData {
       email: doc.data().toString().contains('email') ? doc.get('email') : '',
       username: doc.data().toString().contains('username') ? doc.get('username') : '',
       photoUrl: doc.data().toString().contains('photoUrl') ? doc.get('photoUrl') : '',
+      rating: doc.data().toString().contains('rating') ? doc.get('rating') : 0.0,
 
     );
   }

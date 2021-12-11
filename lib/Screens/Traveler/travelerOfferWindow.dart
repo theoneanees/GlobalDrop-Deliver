@@ -26,8 +26,8 @@ class OfferWindow extends StatefulWidget {
 
 class _OfferWindowState extends State<OfferWindow> {
   UserData ? crntBuyer;
-  String? buyerEmail;
-  String? buyerName;
+  String buyerEmail = "";
+  String buyerName = "";
   String date = DateTime.now().toString().split(' ')[0];
   DateTime selectedDate = DateTime.now();
   TextEditingController locationController = TextEditingController();
@@ -54,9 +54,10 @@ class _OfferWindowState extends State<OfferWindow> {
     print("doc");
     print(doc.id);
     crntBuyer = UserData.fromDocument(doc);
-    buyerName = crntBuyer!.username;
-    buyerEmail = crntBuyer!.email;
-    print(buyerName);
+    buyerEmail = crntBuyer!.email!;
+    buyerName = crntBuyer!.username!;
+    // print(buyerName);
+    print(buyerEmail);
   }
 
   getUserLocation() async {
@@ -198,9 +199,9 @@ class _OfferWindowState extends State<OfferWindow> {
                           ),
                           Text(
                             "username : " +
-                                buyerName! +
+                                buyerName +
                                 "\nemail : " +
-                                buyerEmail!,
+                                buyerEmail,
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 13.5,
