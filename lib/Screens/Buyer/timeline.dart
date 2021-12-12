@@ -38,9 +38,8 @@ class _TimelineState extends State<Timeline> {
   }
   
   getTimeline() async {
-        QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collectionGroup('userPosts')
-        // .orderBy('timestamp', descending: true)
+        QuerySnapshot snapshot = await userPostRef
+        .orderBy('timestamp', descending: true)
         .get();
     List<Post> posts =
         snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();

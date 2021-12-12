@@ -67,7 +67,7 @@ class SettingsPageStateState extends State<SettingsPageState> {
       nickname = settingProvider.getPref(FirestoreConstants.nickname) ?? "";
       aboutMe = settingProvider.getPref(FirestoreConstants.aboutMe) ?? "";
       photoUrl = settingProvider.getPref(FirestoreConstants.photoUrl) ??
-          manualPhotoUrl;
+          currentTraveler!.photoUrl!;
       print(nickname);
       print(photoUrl);
     });

@@ -270,7 +270,7 @@ class _SignInState extends State<SignInBuyer> {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       prefs.setString('email', buyer.email!);
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => Navigation()),

@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:gdds/Screens/Buyer/bottom_nav_bar.dart';
 import 'package:gdds/Screens/Chat/constants/color_constants.dart';
 import 'package:gdds/Screens/Chat/providers/auth_provider.dart';
 import 'package:gdds/Screens/Traveler/traveler_window.dart';
+import 'package:gdds/Screens/register/As%20a%20traveler/uploadTravelerPic.dart';
+import 'package:gdds/main.dart';
 import 'package:provider/provider.dart';
 
 import 'pages.dart';
 
+
+String manualPhotoLink = "";
+
 class SplashPage extends StatefulWidget {
-  SplashPage({Key? key}) : super(key: key);
+  SplashPage({this.manualPhoto});
+  final String? manualPhoto;
+  // SplashPage({Key? key}) : super(key: key);
 
   @override
   SplashPageState createState() => SplashPageState();
@@ -18,6 +26,7 @@ class SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 1), () {
+      manualPhotoLink = widget.manualPhoto!;
       // just delay for showing this slash page clearer because it too fast
       // checkSignedIn();
     });
@@ -50,19 +59,22 @@ class SplashPageState extends State<SplashPage> {
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  elevation: 18,
-                  shadowColor: Colors.black,
-                  primary: Colors.orange[700]
-                ),
+                    elevation: 18,
+                    shadowColor: Colors.black,
+                    primary: Colors.orange[700]),
                 onPressed: () async {
                   bool isSuccess = await authProvider.handleSignIn();
                   if (isSuccess) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TravelerMain()
-                      ),
-                    );
+                    if (travelerLoggedIn) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => TravelerMain(travelerPhotoURL: widget.manualPhoto,)),
+                      );
+                    } else
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Navigation(buyerPhotoUrl: widget.manualPhoto,)),
+                      );
                   }
                 },
                 child: Text("Continue to GDDS".toUpperCase())),

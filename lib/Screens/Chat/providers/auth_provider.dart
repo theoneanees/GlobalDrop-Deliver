@@ -77,7 +77,7 @@ class AuthProvider extends ChangeNotifier {
             .doc(curTrav)
             .set({
           FirestoreConstants.nickname: manualUserName,
-          FirestoreConstants.photoUrl: manualPhotoUrl,
+          FirestoreConstants.photoUrl: manualPhotoLink,
           FirestoreConstants.id: curTrav,
           'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
           FirestoreConstants.chattingWith: null
@@ -87,7 +87,7 @@ class AuthProvider extends ChangeNotifier {
         // User? currentUser = firebaseUser;
         await prefs.setString(FirestoreConstants.id, curTrav);
         await prefs.setString(FirestoreConstants.nickname, manualUserName);
-        await prefs.setString(FirestoreConstants.photoUrl, manualPhotoUrl);
+        await prefs.setString(FirestoreConstants.photoUrl, manualPhotoLink);
       } else {
         // Already sign up, just get data from firestore
         // DocumentSnapshot documentSnapshot = documents[0];

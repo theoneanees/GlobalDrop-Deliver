@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:gdds/Screens/Buyer/bottom_nav_bar.dart';
 import 'package:gdds/Screens/Buyer/progress.dart';
-import 'package:gdds/Screens/Traveler/traveler_window.dart';
+import 'package:gdds/Screens/Chat/pages/pages.dart';
 import 'package:gdds/main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 final presentTravelerData = FirebaseAuth.instance.currentUser!;
-String manualPhotoUrl = "";
 
 class UploadTravelerPic extends StatefulWidget {
   @override
@@ -25,6 +22,7 @@ class _UploadTravelerPicState extends State<UploadTravelerPic> {
   bool isUploading = false;
   File? image;
   String photoId = Uuid().v4();
+  String manualPhotoUrl = "";
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -129,13 +127,13 @@ class _UploadTravelerPicState extends State<UploadTravelerPic> {
       isUploading = false;
       photoId = Uuid().v4();
 
-      if (travelerLoggedIn) {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => TravelerMain(travelerPhotoURL: mediaUrl)));
-      } else {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => Navigation(buyerPhotoUrl: mediaUrl)));
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SplashPage(
+                  manualPhoto: mediaUrl,
+                )),
+      );
     });
   }
 

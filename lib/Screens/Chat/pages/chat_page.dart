@@ -12,6 +12,7 @@ import 'package:gdds/Screens/Chat/models/models.dart';
 import 'package:gdds/Screens/Traveler/travelerOfferWindow.dart';
 import 'package:gdds/Screens/Chat/providers/providers.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gdds/Screens/Traveler/traveler_window.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -501,6 +502,22 @@ class ChatPageState extends State<ChatPage> {
     return Future.value(false);
   }
 
+  createOfferBtn(){
+    if (currentTraveler != null) {
+      return FlatButton.icon(
+            color: Colors.blue[800],
+            onPressed: (){
+              Navigator.of(context).
+              push(MaterialPageRoute(builder: (context) => OfferWindow(buyerId: peerId)));
+            },
+            label: Text("Create\nOffer", style: TextStyle(color: Colors.white, fontSize: 15, fontStyle: FontStyle.italic),),
+            icon: Icon(Icons.request_quote_outlined, color: Colors.white, size: 36,),
+          );
+    }
+    else
+    return Text('');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -512,15 +529,7 @@ class ChatPageState extends State<ChatPage> {
         ),
         centerTitle: true,
         actions: <Widget>[
-          FlatButton.icon(
-            color: Colors.blue[800],
-            onPressed: (){
-              Navigator.of(context).
-              push(MaterialPageRoute(builder: (context) => OfferWindow(buyerId: peerId)));
-            },
-            label: Text("Create\nOffer", style: TextStyle(color: Colors.white, fontSize: 15, fontStyle: FontStyle.italic),),
-            icon: Icon(Icons.request_quote_outlined, color: Colors.white, size: 36,),
-          ),
+          createOfferBtn()
         ],
       ),
       body: WillPopScope(

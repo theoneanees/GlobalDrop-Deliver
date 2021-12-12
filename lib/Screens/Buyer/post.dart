@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gdds/Screens/Buyer/buyer_window.dart';
 import 'package:gdds/models/userdata.dart';
 import 'package:flutter/material.dart';
 import 'package:gdds/Screens/Buyer/progress.dart';
@@ -18,6 +19,10 @@ class Post extends StatefulWidget {
   final String? description;
   final String? mediaUrl;
   final String? userPhoto;
+  final String? startDate;
+  final String? endDate;
+  final String? expectedWeight;
+  final String? desiredLocation;
 
   Post({
     this.postId,
@@ -27,6 +32,9 @@ class Post extends StatefulWidget {
     this.description,
     this.mediaUrl,
     this.userPhoto,
+    this.startDate,
+    this.endDate,
+    this.expectedWeight, this.desiredLocation
   });
 
   factory Post.fromDocument(DocumentSnapshot doc) {
@@ -46,6 +54,18 @@ class Post extends StatefulWidget {
       userPhoto: doc.data().toString().contains('userPhoto')
           ? doc.get('userPhoto')
           : '',
+      startDate: doc.data().toString().contains('startDate')
+          ? doc.get('startDate')
+          : '',
+      endDate: doc.data().toString().contains('endDate')
+          ? doc.get('endDate')
+          : '',
+      expectedWeight: doc.data().toString().contains('expectedWeight')
+          ? doc.get('expectedWeight')
+          : '',
+      desiredLocation: doc.data().toString().contains('desiredLocation')
+          ? doc.get('desiredLocation')
+          : '',
     );
   }
   @override
@@ -57,6 +77,10 @@ class Post extends StatefulWidget {
         description: this.description!,
         mediaUrl: this.mediaUrl!,
         userPhoto: this.userPhoto!,
+        startDate: this.startDate!,
+        endDate: this.endDate!,
+        expectedWeight: this.expectedWeight!,
+        desiredLocation: this.desiredLocation!
       );
 }
 
@@ -69,6 +93,10 @@ class _PostState extends State<Post> {
   final String description;
   final String mediaUrl;
   final String userPhoto;
+  final String startDate;
+  final String endDate;
+  final String expectedWeight;
+  final String desiredLocation;
 
   _PostState({
     required this.postId,
@@ -78,6 +106,10 @@ class _PostState extends State<Post> {
     required this.description,
     required this.mediaUrl,
     required this.userPhoto,
+    required this.startDate,
+    required this.endDate,
+    required this.expectedWeight,
+    required this.desiredLocation
   });
 
   buildPostHeader() {
@@ -92,7 +124,7 @@ class _PostState extends State<Post> {
         bool isPostOwner = currentUserId == ownerId;
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(mediaUrl),
+            backgroundImage: CachedNetworkImageProvider(userPhoto),
             backgroundColor: Colors.grey,
             radius: 25,
           ),
@@ -126,32 +158,154 @@ class _PostState extends State<Post> {
   }
 
   buildPostImage() {
-    return ClipRRect(
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(.5),
-                spreadRadius: 15,
-                blurRadius: 18),
-          ],
-        ),
-        child: CachedNetworkImage(
-          imageUrl: mediaUrl,
-        ),
-      ),
-      borderRadius: BorderRadius.circular(30.0),
-    );
+    if (mediaUrl != "") {
+  return AspectRatio(
+        aspectRatio: 16/14,
+        child: Container(
+            height: 220.0,
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 14,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                      ),
+                    ],
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(mediaUrl),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+  );
+}
+else
+return Text("");
   }
 
   buildPostFooter() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          description,
-          style: TextStyle(color: Colors.black, fontSize: 25.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Item Name",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              description,
+              style: TextStyle(color: Colors.black, fontSize: 17),
+            ),
+          ],
         ),
-      ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Expected Weight",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              expectedWeight + " Kg",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Start Date",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              startDate,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "End Date",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              endDate,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Desired Location",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              desiredLocation,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Current Location",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+            Text(
+              location,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+      ]
     );
   }
 
@@ -170,12 +324,7 @@ class _PostState extends State<Post> {
           ],
         ),
         child: Column(
-          // mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // Text('This is anno'),
-            // Text('This is anno'),
-            // Text('This is anno'),
-            // Text('This is anno'),
             buildPostHeader(),
             buildPostImage(),
             buildPostFooter(),

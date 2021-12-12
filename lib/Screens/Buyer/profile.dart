@@ -23,35 +23,17 @@ class _ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    getProfilePosts2();
+    getProfilePosts();
     super.initState();
   }
 
-  getProfilePosts1() async {
+  getProfilePosts() async {
     // setState(() {
     //   isLoading = false;
     // });
-    QuerySnapshot snapshot = await postsRef
-        .doc(widget.curentuser!.id)
-        .collection('userPosts')
+    QuerySnapshot snapshot = await userPostRef
+        .where('ownerId', isEqualTo: widget.curentuser!.id)
         .orderBy('timestamp', descending: true)
-        .get();
-
-    setState(
-      () {
-        // isLoading = false;
-        posts = snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
-      },
-    );
-  }
-
-  getProfilePosts2() async {
-    // setState(() {
-    //   isLoading = false;
-    // });
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collectionGroup('userPosts')
-        // .orderBy('timestamp', descending: true)
         .get();
 
     setState(

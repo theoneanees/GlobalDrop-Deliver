@@ -28,10 +28,10 @@ class _TravelerUploadState extends State<TravelerUpload> {
   String date = DateTime.now().toString().split(' ')[0];
   DateTime selectedDate = DateTime.now();
   TextEditingController locationController = TextEditingController();
-  String? address;
-  String? countryValue;
-  String? stateValue;
-  String? cityValue;
+  String address = "";
+  String countryValue = "";
+  String stateValue = "";
+  String cityValue = "";
   TextEditingController availWeightController = TextEditingController();
 
   String travelerpostId = Uuid().v4();
@@ -195,12 +195,12 @@ class _TravelerUploadState extends State<TravelerUpload> {
                       },
                       onStateChanged: (value) {
                         setState(() {
-                          stateValue = value;
+                          stateValue = value!;
                         });
                       },
                       onCityChanged: (value) {
                         setState(() {
-                          cityValue = value;
+                          cityValue = value!;
                         });
                       },
                     ),
@@ -255,7 +255,7 @@ class _TravelerUploadState extends State<TravelerUpload> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   address =
-                      cityValue! + ",\n" + stateValue! + ",\n" + countryValue!;
+                      cityValue + ",\n" + stateValue + ",\n" + countryValue;
                   print(address);
                   print(date);
                   handleSubmit();

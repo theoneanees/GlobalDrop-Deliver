@@ -1,4 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:csc_picker/csc_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gdds/Screens/Buyer/bottom_nav_bar.dart';
 import 'package:gdds/Screens/Buyer/progress.dart';
 import 'package:gdds/Screens/Traveler/travelerUpload.dart';
@@ -22,11 +26,21 @@ class UploadPost extends StatefulWidget {
 }
 
 class _UploadPostState extends State<UploadPost> {
-  TextEditingController captionController = TextEditingController();
+  TextEditingController itemNameController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController availWeightController = TextEditingController();
+
   String postId = Uuid().v4();
   bool isUploading = false;
   File? image;
+  String address = "";
+  String countryValue = "";
+  String stateValue = "";
+  String cityValue = "";
+  String date1 = DateTime.now().toString().split(' ')[0];
+  DateTime selectedDate1 = DateTime.now();
+  String date2 = DateTime.now().toString().split(' ')[0];
+  DateTime selectedDate2 = DateTime.now();
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -82,14 +96,9 @@ class _UploadPostState extends State<UploadPost> {
 
   Container buildSplashScreen() {
     return Container(
-      color: Theme.of(context).accentColor.withOpacity(0.6),
       child: Column(
         // mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Image(
-            image: AssetImage('assets/images/uploadpic.jpg'),
-            height: 650.0,
-          ),
           Padding(
               padding: EdgeInsets.only(top: 20.0),
               child: ElevatedButton(
@@ -132,16 +141,20 @@ class _UploadPostState extends State<UploadPost> {
   }
 
   createPostInFirestore(
-      {String? mediaUrl, String? location, String? description}) {
-    postsRef.doc(userdata.uid).collection("userPosts").doc(postId).set({
+      {String? mediaUrl, String? location, String? description, String? expectedWeight}) {
+    userPostRef.doc(postId).set({
       "postId": postId,
       "ownerId": userdata.uid,
       "username": userdata.displayName ?? currBuyer!.username,
       "userPhoto": userdata.photoURL ?? currBuyer!.photoUrl,
-      "mediaUrl": mediaUrl,
+      "mediaUrl": mediaUrl ?? "",
       "description": description,
       "location": location,
       "timestamp": timestamp,
+      "startDate": date1,
+      "endDate": date2,
+      "expectedWeight": expectedWeight,
+      "desiredLocation": address
     });
   }
 
@@ -165,23 +178,255 @@ class _UploadPostState extends State<UploadPost> {
       isUploading = true;
     });
     // await compressImage();
-    String mediaUrl = await uploadImage(image);
-    timestampR = DateTime.now();
-    createPostInFirestore(
-      mediaUrl: mediaUrl,
-      location: locationController.text,
-      description: captionController.text,
-    );
-    captionController.clear();
-    locationController.clear();
-    setState(() {
-      image = null;
-      isUploading = false;
-      postId = Uuid().v4();
-    });
+    if (image != null) {
+      String mediaUrl = await uploadImage(image);
+      timestampR = DateTime.now();
+      address = cityValue + ",\n" + stateValue + ",\n" + countryValue;
+      createPostInFirestore(
+        mediaUrl: mediaUrl,
+        location: locationController.text,
+        description: itemNameController.text,
+        expectedWeight: availWeightController.text
+      );
+      itemNameController.clear();
+      locationController.clear();
+      availWeightController.clear();
+      setState(() {
+        image = null;
+        isUploading = false;
+        postId = Uuid().v4();
+      });
+      Fluttertoast.showToast(msg: "Post Uploaded Successfully");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Navigation()));
+      return;
+    } else {
+      timestampR = DateTime.now();
+      createPostInFirestore(
+        location: locationController.text,
+        description: itemNameController.text,
+        expectedWeight: availWeightController.text
+      );
+      itemNameController.clear();
+      locationController.clear();
+      availWeightController.clear();
+      setState(() {
+        isUploading = false;
+        postId = Uuid().v4();
+      });
+      Fluttertoast.showToast(msg: "Post Uploaded Successfully");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Navigation()));
+    }
   }
 
-  Scaffold buildUploadForm() {
+  _selectDate1(BuildContext context) async {
+    DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate1,
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+    if (selected != null && selected != selectedDate1)
+      setState(() {
+        selectedDate1 = selected;
+        date1 = "$selected".split(' ')[0];
+      });
+  }
+
+  _selectDate2(BuildContext context) async {
+    DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate2,
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+    if (selected != null && selected != selectedDate2)
+      setState(() {
+        selectedDate2 = selected;
+        date2 = "$selected".split(' ')[0];
+      });
+  }
+
+  buildUploadForm() {
+    return Column(
+      children: [
+        isUploading ? linearProgress() : Text(""),
+        imageProvidor(),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+        ),
+        ListTile(
+          leading: CircleAvatar(
+            radius: 20,
+            backgroundImage: CachedNetworkImageProvider(userdata.photoURL!),
+          ),
+          title: Container(
+            width: 250.0,
+            child: TextField(
+              controller: itemNameController,
+              decoration: InputDecoration(
+                hintText: "Enter item name",
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectDate1(context);
+                      },
+                      child: Text("Start Date"),
+                    ),
+                    Text(
+                        "${selectedDate1.day}/${selectedDate1.month}/${selectedDate1.year}")
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectDate2(context);
+                      },
+                      child: Text("End Date"),
+                    ),
+                    Text(
+                        "${selectedDate2.day}/${selectedDate2.month}/${selectedDate2.year}")
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 15),
+          child: Container(
+            width: 220,
+            child: TextField(
+              controller: availWeightController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Available Weight',
+                label: Text("Enter available weight (Kg)"),
+              ),
+            ),
+          ),
+        ),
+        Text(
+          "Please select your location",
+          style: TextStyle(
+              fontSize: 15,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.bold),
+        ),
+        Container(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: CSCPicker(
+            onCountryChanged: (value) {
+              setState(() {
+                countryValue = value;
+              });
+            },
+            onStateChanged: (value) {
+              setState(() {
+                stateValue = value ?? "";
+              });
+            },
+            onCityChanged: (value) {
+              setState(() {
+                cityValue = value?? "";
+              });
+            },
+          ),
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(
+            Icons.pin_drop,
+            color: Colors.orange,
+            size: 35.0,
+          ),
+          title: Container(
+            width: 250.0,
+            child: TextField(
+              controller: locationController,
+              decoration: InputDecoration(
+                hintText: "Please specify your current location",
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ),
+        Container(
+          width: 200.0,
+          height: 100.0,
+          alignment: Alignment.center,
+          child: RaisedButton.icon(
+            label: Text(
+              "Use Current Location",
+              style: TextStyle(color: Colors.white),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            color: Colors.blue,
+            // onPressed: getUserLocation,
+            onPressed: () => getUserLocation(),
+            icon: Icon(
+              Icons.my_location,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  imageProvidor() {
+    if (image != null) {
+      return Container(
+        height: 220.0,
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Center(
+          child: AspectRatio(
+            aspectRatio: 16 / 12,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                  ),
+                ],
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: FileImage(image!),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else
+      return Text("");
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -203,91 +448,11 @@ class _UploadPostState extends State<UploadPost> {
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          isUploading ? linearProgress() : Text(""),
-          Container(
-            height: 220.0,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: FileImage(image!),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10.0),
-          ),
-          ListTile(
-            leading: CircleAvatar(
-              radius: 20,
-              backgroundImage: CachedNetworkImageProvider(userdata.photoURL!),
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: captionController,
-                decoration: InputDecoration(
-                  hintText: "Enter item name",
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.pin_drop,
-              color: Colors.orange,
-              size: 35.0,
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: locationController,
-                decoration: InputDecoration(
-                  hintText: "Please specify your current location",
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: 200.0,
-            height: 100.0,
-            alignment: Alignment.center,
-            child: RaisedButton.icon(
-              label: Text(
-                "Use Current Location",
-                style: TextStyle(color: Colors.white),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              color: Colors.blue,
-              // onPressed: getUserLocation,
-              onPressed: () => getUserLocation(),
-              icon: Icon(
-                Icons.my_location,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [buildSplashScreen(), buildUploadForm()],
+        ),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return image == null ? buildSplashScreen() : buildUploadForm();
   }
 }
